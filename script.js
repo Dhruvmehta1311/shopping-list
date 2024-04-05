@@ -3,6 +3,8 @@ const itemInput = document.getElementById("item-input");
 const itemList = document.getElementById("item-list");
 const clearAll = document.getElementById("clear");
 const filter = document.getElementById("filter");
+const formBtn = itemForm.querySelector("button");
+let isEditMode = false;
 
 function displayItems() {
   const itemsFromStorage = getItemsFromStorage();
@@ -21,6 +23,15 @@ function onAddItemSubmit(e) {
   if (newItem == "") {
     alert("Enter a Proper Value");
     return;
+  }
+
+  if (isEditMode) {
+    const itemToEdit = itemList.querySelector(".edit-mode");
+
+    removeItemFromStorage(itemToEdit.textContent);
+    itemToEdit.classList.remove("edit-mode");
+    itemToEdit.remove();
+    isEditMode = false;
   }
 
   itemInput.value = "";
@@ -68,11 +79,30 @@ function addItemToStorage(item) {
 function onClickItem(e) {
   if (e.target.parentElement.classList.contains("remove-item")) {
     removeItem(e.target.parentElement.parentElement);
+  } else {
+    setItemToEdit(e.target);
   }
-  if (e.target.tagName === "LI") {
-    console.log(e.target);
-    e.target.classList.toggle("strikethrough");
-  }
+
+  // Optional
+  // if (e.target.tagName === "LI") {
+  //   console.log(e.target);
+  //   e.target.classList.toggle("strikethrough");
+  // }
+}
+
+function setItemToEdit(item) {
+  isEditMode = true;
+
+  itemList
+    .querySelectorAll("li")
+    .forEach((i) => i.classList.remove("edit-mode"));
+
+  item.classList.add("edit-mode");
+
+  formBtn.innerHTML = "<i class='fa-solid fa-pen'></i> Update Item";
+  formBtn.style.backgroundColor = "#228B22";
+  // formBtn.classList.add("myBtn");
+  itemInput.value = item.textContent;
 }
 
 function removeItem(item) {
@@ -84,17 +114,6 @@ function removeItem(item) {
     checkUI();
   }
 
-  function removeItemFromStorage(item) {
-    let itemsFromStorage = getItemsFromStorage();
-
-    console.log(`Item is : ${item}`);
-
-    itemsFromStorage = itemsFromStorage.filter((i) => i != item);
-    console.log(itemsFromStorage);
-
-    localStorage.setItem("items", JSON.stringify(itemsFromStorage));
-  }
-
   // if (e.target.parentElement.classList.contains("remove-item")) {
   //   if (confirm("Are you sure you wanna delete it ?")) {
   //     e.target.parentElement.parentElement.remove();
@@ -102,6 +121,17 @@ function removeItem(item) {
   //   }
   // }
   // checkUI();
+}
+
+function removeItemFromStorage(item) {
+  let itemsFromStorage = getItemsFromStorage();
+
+  console.log(`Item is : ${item}`);
+
+  itemsFromStorage = itemsFromStorage.filter((i) => i != item);
+  console.log(itemsFromStorage);
+
+  localStorage.setItem("items", JSON.stringify(itemsFromStorage));
 }
 
 function createButton(classes) {
@@ -126,7 +156,6 @@ function createIcon(classes) {
 function clearAllItems(e) {
   itemList.innerHTML = "";
   localStorage.removeItem("items");
-  clickLi();
   checkUI();
 }
 
@@ -170,11 +199,20 @@ function filterItems(e) {
 }
 
 function checkUI() {
+  itemInput.value = "";
   if (itemList.children.length === 0) {
     filter.style.display = "none";
     clearAll.style.display = "none";
     itemList.innerHTML = "";
+  } else {
+    filter.style.display = "block";
+    clearAll.style.display = "block";
   }
+
+  formBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Add Item';
+  formBtn.style.backgroundColor = "#333";
+
+  isEditMode = false;
 }
 
 itemForm.addEventListener("submit", onAddItemSubmit);
