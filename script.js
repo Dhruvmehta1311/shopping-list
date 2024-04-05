@@ -69,6 +69,10 @@ function onClickItem(e) {
   if (e.target.parentElement.classList.contains("remove-item")) {
     removeItem(e.target.parentElement.parentElement);
   }
+  if (e.target.tagName === "LI") {
+    console.log(e.target);
+    e.target.classList.toggle("strikethrough");
+  }
 }
 
 function removeItem(item) {
@@ -108,6 +112,10 @@ function createButton(classes) {
   return button;
 }
 
+function clickLi(e) {
+  console.log(e);
+}
+
 function createIcon(classes) {
   const icon = document.createElement("i");
   icon.className = classes;
@@ -118,6 +126,7 @@ function createIcon(classes) {
 function clearAllItems(e) {
   itemList.innerHTML = "";
   localStorage.removeItem("items");
+  clickLi();
   checkUI();
 }
 
